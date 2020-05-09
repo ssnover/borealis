@@ -17,4 +17,4 @@ reqwest = "0.10"
 futures = "0.3"
 futures-util = "0.3"
 mdns = "1.1"
-tokio = { version = "0.2.4", features = ["macros", "rt-core"]}
+tokio = { version = "0.2.20", features = ["macros", "rt-core", "time"]}
