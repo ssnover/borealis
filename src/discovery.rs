@@ -1,17 +1,17 @@
 use futures_util::{pin_mut, stream::StreamExt};
 use mdns::{Record, RecordKind};
 use std::error::Error;
-use std::net::IpAddr;
+use std::net::Ipv4Addr;
 use tokio::time::timeout;
 use tokio::time::Duration;
 
 const NANOLEAF_SERVICE: &'static str = "_nanoleafapi._tcp.local";
 
-pub async fn discover_aurora(query_timeout: Duration) -> Result<IpAddr, Box<dyn Error>> {
+pub async fn discover_aurora(query_timeout: Duration) -> Result<Ipv4Addr, Box<dyn Error>> {
     timeout(query_timeout, get_aurora_ip_address()).await?
 }
 
-async fn get_aurora_ip_address() -> Result<IpAddr, Box<dyn Error>> {
+async fn get_aurora_ip_address() -> Result<Ipv4Addr, Box<dyn Error>> {
     let stream = mdns::discover::all(NANOLEAF_SERVICE, Duration::from_secs(5))?.listen();
     pin_mut!(stream);
 
@@ -28,10 +28,9 @@ async fn get_aurora_ip_address() -> Result<IpAddr, Box<dyn Error>> {
     )))
 }
 
-fn to_ip_addr(record: &Record) -> Option<IpAddr> {
+fn to_ip_addr(record: &Record) -> Option<Ipv4Addr> {
     match record.kind {
         RecordKind::A(addr) => Some(addr.into()),
-        RecordKind::AAAA(addr) => Some(addr.into()),
         _ => None,
     }
 }
