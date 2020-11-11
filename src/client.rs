@@ -1,33 +1,15 @@
-use dirs::home_dir;
 use reqwest;
-use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use std::error::Error;
-use std::io::Write;
 use std::net::Ipv4Addr;
 use std::time::Duration;
+use crate::nanoleaf_json_messages::*;
 
 const AURORA_PORT: u32 = 16021;
 
 pub struct Aurora {
-    client: Client,
+    client: reqwest::Client,
     base_url: String,
     auth_token: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct ConfigFile {
-    #[serde(rename = "Address")]
-    ip_addr: Ipv4Addr,
-    #[serde(rename = "Token")]
-    auth_token: String,
-    #[serde(rename = "Friendly Name")]
-    friendly_name: String,
-}
-
-#[derive(Deserialize)]
-struct AddUserResponseBody {
-    pub auth_token: String,
 }
 
 pub async fn generate_auth_token(
@@ -45,12 +27,12 @@ pub async fn generate_auth_token(
 }
 
 impl Aurora {
-    pub fn new(addr: Ipv4Addr, port: Option<u32>, auth: String) -> Result<Aurora, Box<dyn Error>> {
+    pub fn new(addr: Ipv4Addr, port: Option<u32>, auth: &String) -> Result<Aurora, Box<dyn Error>> {
         let port: u32 = port.unwrap_or(AURORA_PORT);
         Ok(Aurora {
             client: reqwest::Client::new(),
             base_url: format!("http://{}:{}/api/v1", addr, port),
-            auth_token: auth,
+            auth_token: auth.clone(),
         })
     }
 
@@ -115,27 +97,5 @@ impl Aurora {
             }
             _ => Ok("".to_string()),
         }
-    }
-}
-
-impl ConfigFile {
-    pub fn new(ip_addr: Ipv4Addr, token: String, name: String) -> ConfigFile {
-        ConfigFile {
-            ip_addr,
-            auth_token: token,
-            friendly_name: name,
-        }
-    }
-
-    pub fn write(&self) -> Result<(), Box<dyn Error>> {
-        let mut config_path = home_dir().unwrap();
-        config_path.push(".borealis");
-        let mut config_file = std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(config_path)?;
-        let content: String = serde_json::to_string(&self)?;
-        config_file.write_all(content.as_bytes())?;
-        Ok(())
     }
 }

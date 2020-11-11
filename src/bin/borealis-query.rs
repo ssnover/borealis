@@ -1,4 +1,5 @@
-use borealis::client::{generate_auth_token, Aurora, ConfigFile};
+use borealis::client::{generate_auth_token, Aurora};
+use borealis::config::ConfigFile;
 use borealis::discovery::discover_aurora;
 use std::time::Duration;
 
@@ -17,7 +18,7 @@ async fn main() {
             let _ = std::io::stdin().read_line(&mut buffer);
             println!("Generating auth token...");
             let token = generate_auth_token(addr, None).await.unwrap();
-            let aurora = Aurora::new(addr, None, token.clone()).unwrap();
+            let aurora = Aurora::new(addr, None, &token).unwrap();
             let name = aurora.get_name().await.unwrap();
             let config = ConfigFile::new(addr, token, name);
             config.write().unwrap();
