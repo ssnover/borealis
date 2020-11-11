@@ -9,20 +9,8 @@ name = "borealis"
 path = "src/lib.rs"
 
 [[bin]]
-name = "nanoleaf-discovery"
-path = "src/discover-auroras.rs"
-
-[[bin]]
-name = "nanoleaf-authorize"
-path = "src/authorization.rs"
-
-[[bin]]
-name = "testing-getters"
-path = "src/testing-getters.rs"
-
-[[bin]]
-name = "borealis"
-path = "src/bin/borealis.rs"
+name = "borealis-query"
+path = "src/bin/borealis-query.rs"
 
 [dependencies]
 reqwest = { version = "0.10", features = ["blocking", "json"] }
@@ -31,5 +19,9 @@ futures-util = "0.3"
 mdns = "1.1"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"]}
-tokio = { version = "0.2.20", features = ["macros", "rt-core", "time"]}
-dirs = "2.0"
+tokio = { version = "0.2", features = ["macros", "rt-core", "time"]}
+dirs = "3.0"
+
+[[example]]
+name = "cycle-effects"
+path = "examples/cycle-effects.rs"
