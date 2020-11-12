@@ -160,4 +160,12 @@ impl Aurora {
             _ => Ok("".to_string()),
         }
     }
+
+    /// Causes the panels to flash in unison. This is typically used to help users
+    /// differentiate between multiple panels.
+    pub async fn identify(&self) -> Result<(), Box<dyn Error>> {
+        let url = format!("{}/{}/identify", &self.base_url, &self.auth_token);
+        self.client.put(&url).send().await?;
+        Ok(())
+    }
 }
