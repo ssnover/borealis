@@ -1,7 +1,6 @@
 use borealis::client::Aurora;
 use std::env;
 use std::net::Ipv4Addr;
-use std::sync::Arc;
 use std::time::Duration;
 
 #[tokio::main]
@@ -25,8 +24,8 @@ pub async fn main() {
 }
 
 async fn cycle_effects(aurora: &Aurora, effect_period: Duration) {
-    let effects = Arc::new(aurora.get_effects().await.unwrap());
-    for effect in &*effects {
+    let effects = aurora.get_effects().await.unwrap();
+    for effect in &effects {
         println!("Changing to effect: {}", &effect);
         aurora.set_effect(effect).await.unwrap();
         std::thread::sleep(effect_period);
