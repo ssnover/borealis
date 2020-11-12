@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
 use dirs::home_dir;
+use serde::{Deserialize, Serialize};
+use std::error::Error;
 use std::io::Write;
 use std::net::Ipv4Addr;
-use std::error::Error;
 
 #[derive(Serialize, Deserialize)]
 pub struct ConfigFile {

@@ -18,7 +18,7 @@ async fn main() {
             let _ = std::io::stdin().read_line(&mut buffer);
             println!("Generating auth token...");
             let token = generate_auth_token(addr, None).await.unwrap();
-            let aurora = Aurora::new(addr, None, &token).unwrap();
+            let aurora = Aurora::new(addr, None, &token);
             let name = aurora.get_name().await.unwrap();
             let config = ConfigFile::new(addr, token, name);
             config.write().unwrap();

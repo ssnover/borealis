@@ -1,8 +1,8 @@
 use borealis::client::Aurora;
 use std::env;
 use std::net::Ipv4Addr;
-use std::time::Duration;
 use std::sync::Arc;
+use std::time::Duration;
 
 #[tokio::main]
 pub async fn main() {
@@ -12,15 +12,16 @@ pub async fn main() {
     let aurora = Aurora::new(
         Ipv4Addr::new(192, 168, 1, 12),
         None,
-        "I8NTBbt5IsFhZ5yAuSaa38m9j70m4odx".to_string(),
-    )
-    .unwrap();
+        &"I8NTBbt5IsFhZ5yAuSaa38m9j70m4odx".to_string(),
+    );
 
     tokio::spawn(async move {
         loop {
             cycle_effects(&aurora, Duration::from_secs(cycle_period_secs)).await;
         }
-    }).await.unwrap();
+    })
+    .await
+    .unwrap();
 }
 
 async fn cycle_effects(aurora: &Aurora, effect_period: Duration) {
