@@ -57,8 +57,8 @@ impl Aurora {
         let response = self.client.get(&url).send().await?;
 
         assert_eq!(reqwest::StatusCode::OK, response.status());
-        let response_body: serde_json::Value = response.json().await.unwrap();
-        Ok(response_body["firmwareVersion"].to_string())
+        let panel_info: GetAllPanelInfoResponseBody = response.json().await.unwrap();
+        Ok(panel_info.firmwareVersion)
     }
 
     /// Set the state of the light panels.
@@ -87,7 +87,7 @@ impl Aurora {
         let url = format!("{}/{}/state/brightness", &self.base_url, &self.auth_token);
         let response = self.client.get(&url).send().await?;
         if response.status() == reqwest::StatusCode::OK {
-            let get_brightness_body: GetBrightnessBody = response.json().await?;
+            let get_brightness_body: PanelStateVariable = response.json().await?;
             Ok(get_brightness_body.value)
         } else {
             unimplemented!();
@@ -122,6 +122,7 @@ impl Aurora {
         Ok(())
     }
 
+    /// Gets a list of the names of effects programmed onto the Aurora gateway.
     pub async fn get_effects(&self) -> Result<Vec<String>, Box<dyn Error>> {
         let url = format!(
             "{}/{}/effects/effectsList",
@@ -139,6 +140,10 @@ impl Aurora {
         Ok(effects)
     }
 
+    /// Commands the Aurora to display an effect.
+    ///
+    /// # Argument
+    /// * `effect` - Name of the effect to display, must be programmed on the Aurora.
     pub async fn set_effect(&self, effect: &String) -> Result<(), Box<dyn Error>> {
         let url = format!("{}/{}/effects/select", &self.base_url, &self.auth_token);
         let request_body = serde_json::json!(SelectEffect {
@@ -154,8 +159,8 @@ impl Aurora {
         let response = self.client.get(&url).send().await?;
         match response.status() {
             reqwest::StatusCode::OK => {
-                let response_body: serde_json::Value = response.json().await.unwrap();
-                Ok(response_body["name"].as_str().unwrap().to_string())
+                let panel_info: GetAllPanelInfoResponseBody = response.json().await.unwrap();
+                Ok(panel_info.name)
             }
             _ => Ok("".to_string()),
         }
