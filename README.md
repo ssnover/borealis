@@ -22,7 +22,7 @@ pub async fn main() {
     let aurora = Aurora::new(
         Ipv4Addr::new(192, 168, 1, 12),                  // IP Address
         None,                                            // Port
-        &"I8NTBbt5IsFhZ5yAuSaa38m9j70m4odx".to_string(), // Auth Token
+        &"YourAuthTokenHere".to_string(), // Auth Token
     );
 
     tokio::spawn(async move {
