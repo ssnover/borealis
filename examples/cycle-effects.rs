@@ -1,4 +1,4 @@
-use borealis::client::Aurora;
+use borealis::Aurora;
 use std::env;
 use std::net::Ipv4Addr;
 use std::time::Duration;

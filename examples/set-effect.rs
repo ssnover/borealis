@@ -1,11 +1,13 @@
-use borealis::client::Aurora;
+use borealis::Aurora;
 use std::env;
 use std::net::Ipv4Addr;
 
 #[tokio::main]
 pub async fn main() {
-    let args: Vec<String> = env::args().collect();
-    let effect_name = args[1].clone();
+    let effect_name: String = env::args()
+        .skip(1)
+        .next()
+        .expect("Must specify effect name to display.");
 
     let aurora = Aurora::new(
         Ipv4Addr::new(192, 168, 1, 12),
@@ -15,6 +17,7 @@ pub async fn main() {
 
     tokio::spawn(async move {
         println!("Setting Aurora to display {}", effect_name);
+        aurora.turn_on().await.unwrap();
         aurora.set_effect(&effect_name).await.unwrap();
     })
     .await
