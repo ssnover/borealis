@@ -20,8 +20,8 @@ pub async fn main() {
         .expect("Must specify effect name to display.");
 
     let aurora = Aurora::new(
-        Ipv4Addr::new(192, 168, 1, 12),                  // IP Address
-        None,                                            // Port
+        Ipv4Addr::new(192, 168, 1, 12),   // IP Address
+        None,                             // Port
         &"YourAuthTokenHere".to_string(), // Auth Token
     );
 
