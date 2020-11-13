@@ -1,6 +1,6 @@
+use crate::error::BorealisResult;
 use crate::nanoleaf_json_messages::*;
 use reqwest;
-use std::error::Error;
 use std::net::Ipv4Addr;
 use std::time::Duration;
 
@@ -21,10 +21,7 @@ pub struct Aurora {
 /// # Arguments
 /// * `addr` - Local IP address of your Nanoleaf Aurora gateway.
 /// * `port` - The port the Aurora is listening on, defaults to `16021` if `None` is passed.
-pub async fn generate_auth_token(
-    addr: Ipv4Addr,
-    port: Option<u32>,
-) -> Result<String, reqwest::Error> {
+pub async fn generate_auth_token(addr: Ipv4Addr, port: Option<u32>) -> BorealisResult<String> {
     let port: u32 = port.unwrap_or(AURORA_PORT);
     let url = format!("http://{}:{}/api/v1/new", addr, port);
     let client = reqwest::Client::new();
@@ -52,19 +49,19 @@ impl Aurora {
     }
 
     /// Get the firmware revision of the Nanoleaf Aurora.
-    pub async fn get_firmware_version(&self) -> Result<String, Box<dyn Error>> {
+    pub async fn get_firmware_version(&self) -> BorealisResult<String> {
         let url = format!("{}/{}/", &self.base_url, &self.auth_token);
         let response = self.client.get(&url).send().await?;
 
         assert_eq!(reqwest::StatusCode::OK, response.status());
-        let panel_info: GetAllPanelInfoResponseBody = response.json().await.unwrap();
+        let panel_info: GetAllPanelInfoResponseBody = response.json().await?;
         Ok(panel_info.firmwareVersion)
     }
 
     /// Set the state of the light panels.
     /// # Arguments
     /// * `on` - If `true`, turns the panels on. If `false`, turns them off.
-    async fn turn_on_off(&self, on: bool) -> Result<(), Box<dyn Error>> {
+    async fn turn_on_off(&self, on: bool) -> BorealisResult<()> {
         let url = format!("{}/{}/state/on", &self.base_url, &self.auth_token);
         let request_body = serde_json::json!(OnOffBody { value: on });
         self.client.put(&url).json(&request_body).send().await?;
@@ -72,18 +69,18 @@ impl Aurora {
     }
 
     /// Turn on the Nanoleaf Aurora light panels.
-    pub async fn turn_on(&self) -> Result<(), Box<dyn Error>> {
+    pub async fn turn_on(&self) -> BorealisResult<()> {
         self.turn_on_off(true).await
     }
 
     /// Turn off the Nanoleaf Aurora light panels.
-    pub async fn turn_off(&self) -> Result<(), Box<dyn Error>> {
+    pub async fn turn_off(&self) -> BorealisResult<()> {
         self.turn_on_off(false).await
     }
 
     /// Get the current brightness value of the Aurora light panels. The maximum
     /// value is `100` and the minimum is `0`.
-    pub async fn get_brightness(&self) -> Result<u16, Box<dyn Error>> {
+    pub async fn get_brightness(&self) -> BorealisResult<u16> {
         let url = format!("{}/{}/state/brightness", &self.base_url, &self.auth_token);
         let response = self.client.get(&url).send().await?;
         if response.status() == reqwest::StatusCode::OK {
@@ -103,7 +100,7 @@ impl Aurora {
         &self,
         value: u16,
         duration: Option<Duration>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> BorealisResult<()> {
         let url = format!("{}/{}/state", &self.base_url, &self.auth_token);
         let duration = if let Some(duration) = duration {
             // TODO Should just error and tell the user if they passed too big of a number
@@ -123,7 +120,7 @@ impl Aurora {
     }
 
     /// Gets a list of the names of effects programmed onto the Aurora gateway.
-    pub async fn get_effects(&self) -> Result<Vec<String>, Box<dyn Error>> {
+    pub async fn get_effects(&self) -> BorealisResult<Vec<String>> {
         let url = format!(
             "{}/{}/effects/effectsList",
             &self.base_url, &self.auth_token
@@ -144,7 +141,7 @@ impl Aurora {
     ///
     /// # Argument
     /// * `effect` - Name of the effect to display, must be programmed on the Aurora.
-    pub async fn set_effect(&self, effect: &String) -> Result<(), Box<dyn Error>> {
+    pub async fn set_effect(&self, effect: &String) -> BorealisResult<()> {
         let url = format!("{}/{}/effects/select", &self.base_url, &self.auth_token);
         let request_body = serde_json::json!(SelectEffect {
             select: effect.clone()
@@ -154,12 +151,13 @@ impl Aurora {
         Ok(())
     }
 
-    pub async fn get_name(&self) -> Result<String, Box<dyn Error>> {
+    /// Gets the "friendly" name programmed on the Aurora gateway.
+    pub async fn get_name(&self) -> BorealisResult<String> {
         let url = format!("{}/{}/", &self.base_url, &self.auth_token);
         let response = self.client.get(&url).send().await?;
         match response.status() {
             reqwest::StatusCode::OK => {
-                let panel_info: GetAllPanelInfoResponseBody = response.json().await.unwrap();
+                let panel_info: GetAllPanelInfoResponseBody = response.json().await?;
                 Ok(panel_info.name)
             }
             _ => Ok("".to_string()),
@@ -168,7 +166,7 @@ impl Aurora {
 
     /// Causes the panels to flash in unison. This is typically used to help users
     /// differentiate between multiple panels.
-    pub async fn identify(&self) -> Result<(), Box<dyn Error>> {
+    pub async fn identify(&self) -> BorealisResult<()> {
         let url = format!("{}/{}/identify", &self.base_url, &self.auth_token);
         self.client.put(&url).send().await?;
         Ok(())

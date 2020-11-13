@@ -62,7 +62,7 @@ pub struct AuroraState {
 #[derive(Deserialize)]
 pub struct AuroraEffects {
     pub select: String,
-    pub effectsList: Vec<String>
+    pub effectsList: Vec<String>,
 }
 
 #[derive(Deserialize)]

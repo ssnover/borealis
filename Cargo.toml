@@ -21,7 +21,12 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"]}
 tokio = { version = "0.2", features = ["macros", "rt-core", "time"]}
 dirs = "3.0"
+thiserror = "1.0"
 
 [[example]]
 name = "cycle-effects"
 path = "examples/cycle-effects.rs"
+
+[[example]]
+name = "set-effect"
+path = "examples/set-effect.rs"
