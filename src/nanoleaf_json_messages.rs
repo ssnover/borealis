@@ -14,6 +14,11 @@ pub struct SelectEffect {
 
 #[derive(Deserialize, Serialize)]
 pub struct OnOffBody {
+    pub on: OnOffBodySubArgs,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct OnOffBodySubArgs {
     pub value: bool,
 }
 

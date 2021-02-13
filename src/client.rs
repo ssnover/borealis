@@ -62,8 +62,8 @@ impl Aurora {
     /// # Arguments
     /// * `on` - If `true`, turns the panels on. If `false`, turns them off.
     async fn turn_on_off(&self, on: bool) -> BorealisResult<()> {
-        let url = format!("{}/{}/state/on", &self.base_url, &self.auth_token);
-        let request_body = serde_json::json!(OnOffBody { value: on });
+        let url = format!("{}/{}/state", &self.base_url, &self.auth_token);
+        let request_body = serde_json::json!(OnOffBody { on: OnOffBodySubArgs {value: on }});
         self.client.put(&url).json(&request_body).send().await?;
         Ok(())
     }
