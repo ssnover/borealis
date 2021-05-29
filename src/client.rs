@@ -1,10 +1,10 @@
 use crate::error::BorealisResult;
 use crate::nanoleaf_json_messages::*;
 use reqwest;
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, ToSocketAddrs};
 use std::time::Duration;
 
-const AURORA_PORT: u32 = 16021;
+pub const AURORA_PORT: u32 = 16021;
 
 /// Data required for the Aurora client to make API requests.
 pub struct Aurora<'a> {
@@ -39,13 +39,13 @@ impl Aurora<'_> {
     /// * `addr` - Local IP address of your Nanoleaf Aurora gateway.
     /// * `port` - The port the Aurora is listening on, defaults to `16021` if `None` is passed.
     /// * `auth` - The authorization token required for calling API methods.
-    pub fn new(addr: Ipv4Addr, port: Option<u32>, auth: &str) -> Aurora {
-        let port: u32 = port.unwrap_or(AURORA_PORT);
-        Aurora {
+    pub fn new<T: ToSocketAddrs>(addr: T, auth: &str) -> BorealisResult<Aurora> {
+        let addr = addr.to_socket_addrs()?.next().unwrap();
+        Ok(Aurora {
             client: reqwest::Client::new(),
-            base_url: format!("http://{}:{}/api/v1", addr, port),
+            base_url: format!("http://{}:{}/api/v1", addr.ip(), addr.port()),
             auth_token: auth,
-        }
+        })
     }
 
     /// Get the firmware revision of the Nanoleaf Aurora.

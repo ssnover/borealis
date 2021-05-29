@@ -7,4 +7,6 @@ pub type BorealisResult<T> = Result<T, BorealisError>;
 pub enum BorealisError {
     #[error(transparent)]
     HTTPError(#[from] reqwest::Error),
+    #[error(transparent)]
+    IOError(#[from] std::io::Error),
 }
