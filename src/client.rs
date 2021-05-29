@@ -107,10 +107,7 @@ impl Aurora<'_> {
         let duration = duration.map(|duration| duration.as_secs() as u16);
 
         let request_body = serde_json::json!(SetBrightnessBody {
-            brightness: SetBrightnessBodySubArgs {
-                value,
-                duration
-            }
+            brightness: SetBrightnessBodySubArgs { value, duration }
         });
         self.client.put(&url).json(&request_body).send().await?;
         Ok(())
