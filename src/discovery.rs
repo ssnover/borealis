@@ -5,7 +5,7 @@ use std::net::Ipv4Addr;
 use tokio::time::timeout;
 use tokio::time::Duration;
 
-const NANOLEAF_SERVICE: &'static str = "_nanoleafapi._tcp.local";
+const NANOLEAF_SERVICE: &str = "_nanoleafapi._tcp.local";
 
 pub async fn discover_aurora(query_timeout: Duration) -> Result<Ipv4Addr, Box<dyn Error>> {
     timeout(query_timeout, get_aurora_ip_address()).await?
@@ -30,7 +30,7 @@ async fn get_aurora_ip_address() -> Result<Ipv4Addr, Box<dyn Error>> {
 
 fn to_ip_addr(record: &Record) -> Option<Ipv4Addr> {
     match record.kind {
-        RecordKind::A(addr) => Some(addr.into()),
+        RecordKind::A(addr) => Some(addr),
         _ => None,
     }
 }

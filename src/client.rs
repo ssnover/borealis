@@ -7,10 +7,10 @@ use std::time::Duration;
 const AURORA_PORT: u32 = 16021;
 
 /// Data required for the Aurora client to make API requests.
-pub struct Aurora {
+pub struct Aurora<'a> {
     client: reqwest::Client,
     base_url: String,
-    auth_token: String,
+    auth_token: &'a str,
 }
 
 /// Requests a new authorization token from the Nanoleaf Aurora gateway.
@@ -32,19 +32,19 @@ pub async fn generate_auth_token(addr: Ipv4Addr, port: Option<u32>) -> BorealisR
     Ok(add_user_body.auth_token)
 }
 
-impl Aurora {
+impl Aurora<'_> {
     /// Constructs a new Nanoleaf Aurora client.
     ///
     /// # Arguments
     /// * `addr` - Local IP address of your Nanoleaf Aurora gateway.
     /// * `port` - The port the Aurora is listening on, defaults to `16021` if `None` is passed.
     /// * `auth` - The authorization token required for calling API methods.
-    pub fn new(addr: Ipv4Addr, port: Option<u32>, auth: &String) -> Aurora {
+    pub fn new(addr: Ipv4Addr, port: Option<u32>, auth: &str) -> Aurora {
         let port: u32 = port.unwrap_or(AURORA_PORT);
         Aurora {
             client: reqwest::Client::new(),
             base_url: format!("http://{}:{}/api/v1", addr, port),
-            auth_token: auth.clone(),
+            auth_token: auth,
         }
     }
 
@@ -63,7 +63,9 @@ impl Aurora {
     /// * `on` - If `true`, turns the panels on. If `false`, turns them off.
     async fn turn_on_off(&self, on: bool) -> BorealisResult<()> {
         let url = format!("{}/{}/state", &self.base_url, &self.auth_token);
-        let request_body = serde_json::json!(OnOffBody { on: OnOffBodySubArgs {value: on }});
+        let request_body = serde_json::json!(OnOffBody {
+            on: OnOffBodySubArgs { value: on }
+        });
         self.client.put(&url).json(&request_body).send().await?;
         Ok(())
     }
@@ -102,17 +104,12 @@ impl Aurora {
         duration: Option<Duration>,
     ) -> BorealisResult<()> {
         let url = format!("{}/{}/state", &self.base_url, &self.auth_token);
-        let duration = if let Some(duration) = duration {
-            // TODO Should just error and tell the user if they passed too big of a number
-            Some(duration.as_secs() as u16)
-        } else {
-            None
-        };
+        let duration = duration.map(|duration| duration.as_secs() as u16);
 
         let request_body = serde_json::json!(SetBrightnessBody {
             brightness: SetBrightnessBodySubArgs {
-                value: value,
-                duration: duration
+                value,
+                duration
             }
         });
         self.client.put(&url).json(&request_body).send().await?;
@@ -141,10 +138,10 @@ impl Aurora {
     ///
     /// # Argument
     /// * `effect` - Name of the effect to display, must be programmed on the Aurora.
-    pub async fn set_effect(&self, effect: &String) -> BorealisResult<()> {
+    pub async fn set_effect(&self, effect: &str) -> BorealisResult<()> {
         let url = format!("{}/{}/effects/select", &self.base_url, &self.auth_token);
         let request_body = serde_json::json!(SelectEffect {
-            select: effect.clone()
+            select: effect.into()
         });
         self.client.put(&url).json(&request_body).send().await?;
 
