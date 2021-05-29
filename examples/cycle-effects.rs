@@ -1,10 +1,9 @@
 use borealis::Aurora;
-use std::env;
 use std::time::Duration;
 
 #[tokio::main]
 pub async fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = std::env::args().collect();
     let cycle_period_secs = args[1].parse::<u64>().expect("Invalid arguments.");
     let aurora = Aurora::new("192.168.1.12:16021", "I8NTBbt5IsFhZ5yAuSaa38m9j70m4odx").unwrap();
 
