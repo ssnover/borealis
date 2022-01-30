@@ -56,7 +56,6 @@ pub struct GetAllPanelInfoResponseBody {
 
 #[derive(Deserialize)]
 pub struct AuroraState {
-    pub on: OnOffBody,
     pub brightness: PanelStateVariable,
     pub hue: PanelStateVariable,
     pub sat: PanelStateVariable,
@@ -105,7 +104,7 @@ pub struct RhythmState {
 
 #[derive(Deserialize)]
 pub struct Position {
-    pub x: i16,
-    pub y: i16,
-    pub o: i16,
+    pub x: f32,
+    pub y: f32,
+    pub o: f32,
 }
